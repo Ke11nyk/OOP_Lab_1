@@ -6,9 +6,11 @@ import java.util.List;
 
 public class Bouquet {
     private final List<Flower> flowers;
+    private final List<BouquetAccessory> accessories;
 
     public Bouquet() {
         this.flowers = new ArrayList<>();
+        this.accessories = new ArrayList<>();
     }
 
     public void addFlower(Flower flower) {
@@ -19,9 +21,18 @@ public class Bouquet {
         flowers.remove(flower);
     }
 
+    public void addAccessory(BouquetAccessory accessory) {
+        accessories.add(accessory);
+    }
+
+    public void removeAccessory(BouquetAccessory accessory) {
+        accessories.remove(accessory);
+    }
+
     public double getTotalCost() {
         double flowerCost = flowers.stream().mapToDouble(Flower::getCost).sum();
-        return flowerCost;
+        double accessoryCost = accessories.stream().mapToDouble(BouquetAccessory::getCost).sum();
+        return flowerCost + accessoryCost;
     }
 
     public Flower findFlowerByStemLength(int minLength, int maxLength) {
@@ -33,5 +44,9 @@ public class Bouquet {
 
     public List<Flower> getFlowers() {
         return flowers;
+    }
+
+    public List<BouquetAccessory> getAccessories() {
+        return accessories;
     }
 }
