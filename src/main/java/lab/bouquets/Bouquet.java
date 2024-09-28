@@ -7,10 +7,19 @@ import java.util.List;
 public class Bouquet {
     private final List<Flower> flowers;
     private final List<BouquetAccessory> accessories;
+    private String name;
 
     public Bouquet() {
         this.flowers = new ArrayList<>();
         this.accessories = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void addFlower(Flower flower) {
