@@ -1,10 +1,10 @@
 package lab.bouquets;
 
 public class BouquetAccessory {
-    private final String name;
+    private String name;
     private final double cost;
 
-    public BouquetAccessory(String name, double cost, String description) {
+    public BouquetAccessory(String name, double cost) {
         this.name = name;
         this.cost = cost;
     }
