@@ -8,8 +8,8 @@ public class Flower {
     // Constructor
     public Flower(String name, int stemLength, int freshnessLevel) {
         this.name = name;
-        this.stemLength = stemLength;
-        this.freshnessLevel = freshnessLevel;
+        setStemLength(stemLength);
+        setFreshnessLevel(freshnessLevel);
     }
 
     // Getter for name
