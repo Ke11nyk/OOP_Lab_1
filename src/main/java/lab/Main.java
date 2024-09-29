@@ -1,6 +1,6 @@
 package lab;
 
-import lab.database.*;
+import lab.database.FlowerShopDatabase;
 import lab.menu.*;
 
 import java.sql.SQLException;

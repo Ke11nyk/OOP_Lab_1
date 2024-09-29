@@ -1,6 +1,6 @@
 package lab.menu;
 
-import lab.database.*;
+import lab.database.FlowerShopDatabase;
 import lab.bouquets.*;
 
 import java.util.List;

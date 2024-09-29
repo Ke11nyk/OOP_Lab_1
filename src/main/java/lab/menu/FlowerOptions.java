@@ -1,6 +1,6 @@
 package lab.menu;
 
-import lab.database.*;
+import lab.database.FlowerShopDatabase;
 import lab.flowers.*;
 import lab.bouquets.Bouquet;
 
@@ -116,9 +116,8 @@ public class FlowerOptions {
 
     public static void findFlowersByStemLength() {
         BouquetOptions.displayAllBouquets();
-        System.out.print("Enter the ID of the bouquet to search: ");
-        int bouquetId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        System.out.print("Enter the name of the bouquet to search: ");
+        String bouquetName = scanner.nextLine();
 
         System.out.print("Enter minimum stem length: ");
         int minLength = scanner.nextInt();
@@ -129,17 +128,37 @@ public class FlowerOptions {
         List<Bouquet> bouquets = database.getAllBouquets();
         Bouquet selectedBouquet = null;
 
+        for (Bouquet bouquet : bouquets) {
+            if (bouquet.getName().equalsIgnoreCase(bouquetName)) {
+                selectedBouquet = bouquet;
+                break;
+            }
+        }
+
         if (selectedBouquet != null) {
             List<Flower> foundFlowers = selectedBouquet.getFlowers().stream()
                     .filter(f -> f.getStemLength() >= minLength && f.getStemLength() <= maxLength)
                     .toList();
 
-            System.out.println("Flowers found in the given stem length range:");
-            for (Flower flower : foundFlowers) {
-                System.out.println("  " + flower.getName() + " - Stem Length: " + flower.getStemLength());
+            if (!foundFlowers.isEmpty()) {
+                System.out.println("Flowers found in '" + selectedBouquet.getName() + "' within the stem length range (" + minLength + " - " + maxLength + "):");
+                for (Flower flower : foundFlowers) {
+                    System.out.println("  " + flower.getName() + " - Stem Length: " + flower.getStemLength());
+                }
+            } else {
+                System.out.println("No flowers found in '" + selectedBouquet.getName() + "' within the stem length range (" + minLength + " - " + maxLength + ").");
             }
         } else {
-            System.out.println("Bouquet not found.");
+            System.out.println("Bouquet not found: " + bouquetName);
         }
+    }
+
+    private static String getBouquetNameForFlower(List<Bouquet> bouquets, Flower flower) {
+        for (Bouquet bouquet : bouquets) {
+            if (bouquet.getFlowers().contains(flower)) {
+                return bouquet.getName();
+            }
+        }
+        return "Unknown";
     }
 }
