@@ -28,6 +28,23 @@ public class AccessoryDatabase implements IAccessoryDatabase {
         }
     }
 
+    public void removeAccessory(String accessoryName) {
+        String sql = "DELETE FROM accessories WHERE name = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, accessoryName);
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Deleting accessory failed, no rows affected.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error removing accessory", e);
+        }
+    }
+
     public static int getAccessoryId(BouquetAccessory accessory) {
         String sql = "SELECT id FROM accessories WHERE name = ? AND cost = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
