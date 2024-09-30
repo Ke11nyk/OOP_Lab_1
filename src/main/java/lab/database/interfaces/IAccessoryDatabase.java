@@ -7,6 +7,8 @@ import java.util.List;
 public interface IAccessoryDatabase {
     void insertAccessory(BouquetAccessory accessory);
 
+    void removeAccessory(String name);
+
     static int getAccessoryId(BouquetAccessory accessory) {
         return 0;
     }

@@ -10,6 +10,45 @@ public class Main {
     private static final FlowerShopDatabase database = new FlowerShopDatabase();
     private static final Scanner scanner = new Scanner(System.in);
 
+    private static final InputReader inputReader = new InputReader() {
+        @Override
+        public int readInt(String prompt) {
+            System.out.print(prompt + " ");
+            while (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); // Consume invalid input
+            }
+            return scanner.nextInt();
+        }
+
+        @Override
+        public double readDouble(String prompt) {
+            System.out.print(prompt + " ");
+            while (!scanner.hasNextDouble()) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); // Consume invalid input
+            }
+            return scanner.nextDouble();
+        }
+
+
+        @Override
+        public boolean readBoolean(String prompt) {
+            System.out.print(prompt + " ");
+            return scanner.nextBoolean();
+        }
+
+        @Override
+        public String readString(String prompt) {
+            System.out.print(prompt + " ");
+            return scanner.nextLine();
+        }
+    };
+
+    private static final FlowerOptions flowerOptions = new FlowerOptions(database, inputReader);
+    private static final AccessoryOptions accessoryOptions = new AccessoryOptions(database, inputReader);
+    private static final BouquetOptions bouquetOptions = new BouquetOptions(database, inputReader, flowerOptions, accessoryOptions);
+
     public static void main(String[] args) throws SQLException {
         database.createTables();
 
@@ -21,10 +60,11 @@ public class Main {
             System.out.println("5. Display all accessories");
             System.out.println("6. Display all bouquets");
             System.out.println("7. Remove a flower");
-            System.out.println("8. Remove a bouquet");
-            System.out.println("9. Sort flowers in a bouquet");
-            System.out.println("10. Find flowers in a bouquet by stem length");
-            System.out.println("11. Exit");
+            System.out.println("8. Remove a accessory");
+            System.out.println("9. Remove a bouquet");
+            System.out.println("10. Sort flowers in a bouquet");
+            System.out.println("11. Find flowers in a bouquet by stem length");
+            System.out.println("12. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -32,36 +72,39 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    FlowerOptions.addFlower();
+                    flowerOptions.addFlower();
                     break;
                 case 2:
-                    AccessoryOptions.addAccessory();
+                    accessoryOptions.addAccessory();
                     break;
                 case 3:
-                    BouquetOptions.createBouquet();
+                    bouquetOptions.createBouquet();
                     break;
                 case 4:
-                    FlowerOptions.displayAllFlowers();
+                    flowerOptions.displayAllFlowers();
                     break;
                 case 5:
-                    AccessoryOptions.displayAllAccessories();
+                    accessoryOptions.displayAllAccessories();
                     break;
                 case 6:
-                    BouquetOptions.displayAllBouquets();
+                    bouquetOptions.displayAllBouquets();
                     break;
                 case 7:
-                    FlowerOptions.removeFlower();
+                    flowerOptions.removeFlower();
                     break;
                 case 8:
-                    BouquetOptions.removeBouquet();
+                    accessoryOptions.removeAccessory();
                     break;
                 case 9:
-                    BouquetOptions.sortBouquetFlowers();
+                    bouquetOptions.removeBouquet();
                     break;
                 case 10:
-                    FlowerOptions.findFlowersByStemLength();
+                    bouquetOptions.sortBouquetFlowers();
                     break;
                 case 11:
+                    flowerOptions.findFlowersByStemLength();
+                    break;
+                case 12:
                     System.out.println("Exiting...");
                     return;
                 default:

@@ -9,6 +9,8 @@ public interface IBouquetDatabase {
 
     int getBouquetId(Bouquet bouquet);
 
+    Bouquet getBouquetByName(String name);
+
     List<Bouquet> getAllBouquets();
 
     void removeBouquet(String name);

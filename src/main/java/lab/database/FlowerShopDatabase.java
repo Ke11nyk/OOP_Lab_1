@@ -98,6 +98,10 @@ public class FlowerShopDatabase implements IFlowerDatabase, IBouquetDatabase, IA
         return bouquetDatabase.getBouquetId(bouquet);
     }
 
+    public Bouquet getBouquetByName(String name) {
+        return bouquetDatabase.getBouquetByName(name);
+    }
+
     public List<Bouquet> getAllBouquets() {
         return bouquetDatabase.getAllBouquets();
     }
@@ -109,6 +113,8 @@ public class FlowerShopDatabase implements IFlowerDatabase, IBouquetDatabase, IA
     public void insertAccessory(BouquetAccessory accessory){
         accessoryDatabase.insertAccessory(accessory);
     }
+
+    public void removeAccessory(String name) { accessoryDatabase.removeAccessory(name); }
 
     public int getAccessoryId(BouquetAccessory accessory) {
         return accessoryDatabase.getAccessoryId(accessory);

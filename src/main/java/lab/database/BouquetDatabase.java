@@ -211,6 +211,16 @@ public class BouquetDatabase implements IBouquetDatabase {
         }
     }
 
+    public Bouquet getBouquetByName(String name) {
+        List<Bouquet> bouquets = getAllBouquets();
+        for (Bouquet bouquet : bouquets) {
+            if (bouquet.getName().equalsIgnoreCase(name)) {
+                return bouquet;
+            }
+        }
+        return null;
+    }
+
     public List<Bouquet> getAllBouquets() {
         List<Bouquet> bouquets = new ArrayList<>();
         String sql = "SELECT * FROM bouquets";

@@ -2,89 +2,64 @@ package lab.menu;
 
 import lab.database.FlowerShopDatabase;
 import lab.flowers.*;
-import lab.bouquets.Bouquet;
+        import lab.bouquets.Bouquet;
 
 import java.util.List;
 import java.util.Scanner;
 
 public class FlowerOptions {
-    private static final FlowerShopDatabase database = new FlowerShopDatabase();
+    private final FlowerShopDatabase database;
+    private final InputReader inputReader;
     private static final Scanner scanner = new Scanner(System.in);
 
-    public static void addFlower() {
-        System.out.println("Select flower type:");
-        System.out.println("1. Lily");
-        System.out.println("2. Rose");
-        System.out.println("3. Tulip");
-        System.out.println("4. Generic Flower");
-        int flowerType = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+    public FlowerOptions(FlowerShopDatabase database, InputReader inputReader) {
+        this.database = database;
+        this.inputReader = inputReader;
+    }
 
-        System.out.print("Enter stem length: ");
-        int stemLength = scanner.nextInt();
-
-        System.out.print("Enter freshness level (1-10): ");
-        int freshnessLevel = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+    public void addFlower() {
+        int flowerType = inputReader.readInt("Select flower type:\n1. Lily\n2. Rose\n3. Tulip\n4. Generic Flower\n");
+        int stemLength = inputReader.readInt("Enter stem length:");
+        int freshnessLevel = inputReader.readInt("Enter freshness level (1-10):");
 
         Flower flower;
         switch (flowerType) {
             case 1:
-                System.out.print("Enter petal count: ");
-                int petalCount = scanner.nextInt();
-                System.out.print("Is it fragrant? (true/false): ");
-                boolean fragrant = scanner.nextBoolean();
+                int petalCount = inputReader.readInt("Enter petal count:");
+                boolean fragrant = inputReader.readBoolean("Is it fragrant? (true/false):");
                 flower = new Lily(stemLength, freshnessLevel, petalCount, fragrant);
                 break;
             case 2:
-                System.out.print("Is it thorny? (true/false): ");
-                boolean thorny = scanner.nextBoolean();
+                boolean thorny = inputReader.readBoolean("Is it thorny? (true/false):");
                 flower = new Rose(stemLength, freshnessLevel, thorny);
                 break;
             case 3:
-                System.out.print("Enter bloom type: ");
-                String bloomType = scanner.nextLine();
-                System.out.print("Does it have a stiff stem? (true/false): ");
-                boolean stiffStem = scanner.nextBoolean();
+                String bloomType = inputReader.readString("Enter bloom type:");
+                boolean stiffStem = inputReader.readBoolean("Does it have a stiff stem? (true/false):");
                 flower = new Tulip(stemLength, freshnessLevel, bloomType, stiffStem);
                 break;
-            case 4:
-                System.out.print("Enter flower name: ");
-                String name = scanner.nextLine();
-                flower = new Flower(name, stemLength, freshnessLevel);
-                break;
             default:
-                System.out.println("Invalid flower type. Creating a generic flower.");
-                System.out.print("Enter flower name: ");
-                name = scanner.nextLine();
+                String name = inputReader.readString("Enter flower name:");
                 flower = new Flower(name, stemLength, freshnessLevel);
         }
 
-        try {
-            database.insertFlower(flower);
-            System.out.println("Flower added successfully.");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        database.insertFlower(flower);
+        System.out.println("Flower added successfully.");
     }
 
-    public static void removeFlower() {
+    public void removeFlower() {
         displayAllFlowers();
-        System.out.print("Enter the ID of the flower to remove: ");
-        int flowerId = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
-
+        int flowerId = inputReader.readInt("Enter the ID of the flower to remove:");
         database.removeFlower(flowerId);
         System.out.println("Flower removed successfully.");
     }
 
-    public static void addFlowerToBouquet(Bouquet bouquet) {
+    public void addFlowerToBouquet(Bouquet bouquet) {
         List<Flower> flowers = database.getAllFlowers();
         for (int i = 0; i < flowers.size(); i++) {
             System.out.println((i + 1) + ". " + flowers.get(i).getName());
         }
-        System.out.print("Choose a flower to add: ");
-        int flowerChoice = scanner.nextInt() - 1;
+        int flowerChoice = inputReader.readInt("Choose a flower to add:") - 1;
         if (flowerChoice >= 0 && flowerChoice < flowers.size()) {
             bouquet.addFlower(flowers.get(flowerChoice));
             System.out.println("Flower added to bouquet.");
@@ -93,7 +68,7 @@ public class FlowerOptions {
         }
     }
 
-    public static void displayAllFlowers() {
+    public void displayAllFlowers() {
         List<Flower> flowers = database.getAllFlowers();
         System.out.println("\nAll Flowers:");
         for (Flower flower : flowers) {
@@ -114,8 +89,8 @@ public class FlowerOptions {
         }
     }
 
-    public static void findFlowersByStemLength() {
-        BouquetOptions.displayAllBouquets();
+    public void findFlowersByStemLength() {
+        displayAllBouquets();
         System.out.print("Enter the name of the bouquet to search: ");
         String bouquetName = scanner.nextLine();
 
@@ -153,7 +128,15 @@ public class FlowerOptions {
         }
     }
 
-    private static String getBouquetNameForFlower(List<Bouquet> bouquets, Flower flower) {
+    private void displayAllBouquets() {
+        List<Bouquet> bouquets = database.getAllBouquets();
+        System.out.println("\nAll Bouquets:");
+        for (Bouquet bouquet : bouquets) {
+            System.out.println(bouquet.getName());
+        }
+    }
+
+    private String getBouquetNameForFlower(List<Bouquet> bouquets, Flower flower) {
         for (Bouquet bouquet : bouquets) {
             if (bouquet.getFlowers().contains(flower)) {
                 return bouquet.getName();

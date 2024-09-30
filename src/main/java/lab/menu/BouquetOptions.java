@@ -4,35 +4,40 @@ import lab.database.FlowerShopDatabase;
 import lab.bouquets.*;
 import lab.flowers.Flower;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Scanner;
 
 public class BouquetOptions {
-    private static final FlowerShopDatabase database = new FlowerShopDatabase();
-    private static final Scanner scanner = new Scanner(System.in);
+    private final FlowerShopDatabase database;
+    private final InputReader inputReader;
+    private final FlowerOptions flowerOptions;
+    private final AccessoryOptions accessoryOptions;
 
-    public static void createBouquet() throws SQLException {
+    public BouquetOptions(FlowerShopDatabase database, InputReader inputReader, FlowerOptions flowerOptions, AccessoryOptions accessoryOptions) {
+        this.database = database;
+        this.inputReader = inputReader;
+        this.flowerOptions = flowerOptions;
+        this.accessoryOptions = accessoryOptions;
+    }
+
+    public void createBouquet() {
         Bouquet bouquet = new Bouquet();
+        String bouquetName = inputReader.readString("Enter bouquet name: ");
 
         while (true) {
             System.out.println("\n1. Add a flower to the bouquet");
             System.out.println("2. Add an accessory to the bouquet");
             System.out.println("3. Finish bouquet");
-            System.out.print("Choose an option: ");
-
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+            int choice = inputReader.readInt("Choose an option: ");
 
             switch (choice) {
                 case 1:
-                    FlowerOptions.addFlowerToBouquet(bouquet);
+                    flowerOptions.addFlowerToBouquet(bouquet);
                     break;
                 case 2:
-                    AccessoryOptions.addAccessoryToBouquet(bouquet);
+                    accessoryOptions.addAccessoryToBouquet(bouquet);
                     break;
                 case 3:
-                    finalizeBouquet(bouquet);
+                    finalizeBouquet(bouquet, bouquetName);
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -40,25 +45,20 @@ public class BouquetOptions {
         }
     }
 
-    public static void removeBouquet() {
+    public void removeBouquet() {
         displayAllBouquets();
-        System.out.print("Enter the name of the bouquet to remove: ");
-        String name = scanner.nextLine();
-        scanner.nextLine(); // Consume newline
-
+        String name = inputReader.readString("Enter the name of the bouquet to remove: ");
         database.removeBouquet(name);
         System.out.println("Bouquet removed successfully.");
     }
 
-    public static void finalizeBouquet(Bouquet bouquet) throws SQLException {
-        System.out.print("Enter bouquet name: ");
-        String bouquetName = scanner.nextLine();
+    private void finalizeBouquet(Bouquet bouquet, String bouquetName) {
         database.insertBouquet(bouquet, bouquetName);
         System.out.println("Bouquet created successfully.");
         System.out.println("Total cost: $" + bouquet.getTotalCost());
     }
 
-    public static void displayAllBouquets() {
+    public void displayAllBouquets() {
         List<Bouquet> bouquets = database.getAllBouquets();
         System.out.println("\nAll Bouquets:");
         for (Bouquet bouquet : bouquets) {
@@ -76,20 +76,10 @@ public class BouquetOptions {
         }
     }
 
-    public static void sortBouquetFlowers() {
+    public void sortBouquetFlowers() {
         displayAllBouquets();
-        System.out.print("Enter the name of the bouquet to sort: ");
-        String bouquetName = scanner.nextLine();
-
-        List<Bouquet> bouquets = database.getAllBouquets();
-        Bouquet selectedBouquet = null;
-
-        for (Bouquet bouquet : bouquets) {
-            if (bouquet.getName().equalsIgnoreCase(bouquetName)) {
-                selectedBouquet = bouquet;
-                break;
-            }
-        }
+        String bouquetName = inputReader.readString("Enter the name of the bouquet to sort: ");
+        Bouquet selectedBouquet = database.getBouquetByName(bouquetName);
 
         if (selectedBouquet != null) {
             BouquetSorter.sortByFreshness(selectedBouquet);
