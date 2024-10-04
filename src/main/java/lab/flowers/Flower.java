@@ -1,5 +1,8 @@
 package lab.flowers;
 
+import java.util.Comparator;
+import java.util.List;
+
 public class Flower {
     private String name;
     private int stemLength;
@@ -10,6 +13,15 @@ public class Flower {
         this.name = name;
         setStemLength(stemLength);
         setFreshnessLevel(freshnessLevel);
+    }
+
+    /**
+     * Sorts the given list of flowers using the provided comparator.
+     * @param flowers The list of flowers to sort.
+     * @param comparator The comparator to use for sorting.
+     */
+    public static void sort(List<Flower> flowers, Comparator<Flower> comparator) {
+        flowers.sort(comparator);
     }
 
     // Getter for name

@@ -3,6 +3,7 @@ package lab.bouquets;
 import lab.flowers.Flower;
 
 import java.util.ArrayList;
+import lab.flowers.FlowerComparator;
 import java.util.List;
 
 public class Bouquet {
@@ -50,6 +51,14 @@ public class Bouquet {
                 .filter(f -> f.getStemLength() >= minLength && f.getStemLength() <= maxLength)
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Sorts the flowers in the bouquet.
+     * @param ascending true for ascending order, false for descending order
+     */
+    public void sortFlowers(boolean ascending) {
+        Flower.sort(flowers, new FlowerComparator(ascending));
     }
 
     public List<Flower> getFlowers() {

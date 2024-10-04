@@ -3,6 +3,7 @@ package lab.menu;
 import lab.database.FlowerShopDatabase;
 import lab.bouquets.*;
 import lab.flowers.Flower;
+import lab.flowers.FlowerComparator;
 
 import java.util.List;
 
@@ -82,8 +83,15 @@ public class BouquetOptions {
         Bouquet selectedBouquet = database.getBouquetByName(bouquetName);
 
         if (selectedBouquet != null) {
-            BouquetSorter.sortByFreshness(selectedBouquet);
-            System.out.println("Bouquet flowers sorted by freshness:");
+            System.out.println("Sort order:");
+            System.out.println("1. Ascending (least fresh to freshest)");
+            System.out.println("2. Descending (freshest to least fresh)");
+            int choice = inputReader.readInt("Choose sorting order (1 or 2): ");
+
+            boolean ascending = choice == 1;
+            selectedBouquet.sortFlowers(ascending);
+
+            System.out.println("Bouquet flowers sorted by freshness (" + (ascending ? "ascending" : "descending") + "):");
             for (Flower flower : selectedBouquet.getFlowers()) {
                 System.out.println("  " + flower.getName() + " - Freshness: " + flower.getFreshnessLevel());
             }
