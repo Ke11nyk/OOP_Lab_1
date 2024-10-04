@@ -2,38 +2,27 @@ package lab.database;
 
 import lab.bouquets.Bouquet;
 import lab.bouquets.BouquetAccessory;
-import lab.database.interfaces.IAccessoryDatabase;
-import lab.database.interfaces.IBouquetDatabase;
-import lab.database.interfaces.IFlowerDatabase;
+import lab.database.interfaces.*;
 import lab.flowers.Flower;
 
 import java.sql.*;
 import java.util.List;
-import io.github.cdimascio.dotenv.Dotenv;
 
 public class FlowerShopDatabase implements IFlowerDatabase, IBouquetDatabase, IAccessoryDatabase {
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String URL = dotenv.get("DB_URL");
-    private static final String USER = dotenv.get("DB_USER");
-    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
-
-    FlowerDatabase flowerDatabase;
-    BouquetDatabase bouquetDatabase;
-    AccessoryDatabase accessoryDatabase;
+    private final DatabaseConnection dbConnection;
+    private final FlowerDatabase flowerDatabase;
+    private final BouquetDatabase bouquetDatabase;
+    private final AccessoryDatabase accessoryDatabase;
 
     public FlowerShopDatabase() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.flowerDatabase = new FlowerDatabase();
-            this.bouquetDatabase = new BouquetDatabase();
-            this.accessoryDatabase = new AccessoryDatabase();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("PostgreSQL JDBC Driver not found", e);
-        }
+        this.dbConnection = DatabaseConnection.getInstance();
+        this.flowerDatabase = new FlowerDatabase();
+        this.bouquetDatabase = new BouquetDatabase();
+        this.accessoryDatabase = new AccessoryDatabase();
     }
 
     public void createTables() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute("CREATE TABLE IF NOT EXISTS flowers (" +
@@ -126,5 +115,9 @@ public class FlowerShopDatabase implements IFlowerDatabase, IBouquetDatabase, IA
 
     public List<BouquetAccessory> getAllAccessories() {
         return accessoryDatabase.getAllAccessories();
+    }
+
+    public void closeConnection() {
+        dbConnection.closeConnection();
     }
 }

@@ -11,16 +11,17 @@ import java.util.List;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class BouquetDatabase implements IBouquetDatabase {
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String URL = dotenv.get("DB_URL");
-    private static final String USER = dotenv.get("DB_USER");
-    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
+    private static DatabaseConnection dbConnection;
+
+    public BouquetDatabase() {
+        this.dbConnection = DatabaseConnection.getInstance();
+    }
 
     public boolean insertBouquet(Bouquet bouquet, String bouquetName) {
         Connection conn = null;
         boolean success = false;
         try {
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            conn = dbConnection.getConnection();
             conn.setAutoCommit(false);
 
             if (isBouquetNameUnique(conn, bouquetName)) {
@@ -55,7 +56,7 @@ public class BouquetDatabase implements IBouquetDatabase {
     }
 
     public void removeBouquet(String name) {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = dbConnection.getConnection()) {
             conn.setAutoCommit(false);
 
             // First, get the bouquet ID
@@ -148,7 +149,7 @@ public class BouquetDatabase implements IBouquetDatabase {
         String sql = "SELECT f.*, bf.quantity FROM flowers f " +
                 "JOIN bouquet_flowers bf ON f.id = bf.flower_id " +
                 "WHERE bf.bouquet_id = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, bouquetId);
@@ -171,7 +172,7 @@ public class BouquetDatabase implements IBouquetDatabase {
         String sql = "SELECT a.*, ba.quantity FROM accessories a " +
                 "JOIN bouquet_accessories ba ON a.id = ba.accessory_id " +
                 "WHERE ba.bouquet_id = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, bouquetId);
@@ -194,7 +195,7 @@ public class BouquetDatabase implements IBouquetDatabase {
 
     public int getBouquetId(Bouquet bouquet) {
         String sql = "SELECT id FROM bouquets WHERE name = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, bouquet.getName());
@@ -224,7 +225,7 @@ public class BouquetDatabase implements IBouquetDatabase {
     public List<Bouquet> getAllBouquets() {
         List<Bouquet> bouquets = new ArrayList<>();
         String sql = "SELECT * FROM bouquets";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 

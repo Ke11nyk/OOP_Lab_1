@@ -6,18 +6,18 @@ import lab.flowers.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import io.github.cdimascio.dotenv.Dotenv;
 
 public class FlowerDatabase implements IFlowerDatabase {
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String URL = dotenv.get("DB_URL");
-    private static final String USER = dotenv.get("DB_USER");
-    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
+    private static DatabaseConnection dbConnection;
+
+    public FlowerDatabase() {
+        this.dbConnection = DatabaseConnection.getInstance();
+    }
 
     public void insertFlower(Flower flower) {
         String sql = "INSERT INTO flowers (type, name, stem_length, freshness_level, petal_count, fragrant, thorny, bloom_type, stiff_stem) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, flower.getClass().getSimpleName());
@@ -63,7 +63,7 @@ public class FlowerDatabase implements IFlowerDatabase {
 
     public void removeFlower(int flowerId) {
         String sql = "DELETE FROM flowers WHERE id = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, flowerId);
@@ -76,7 +76,7 @@ public class FlowerDatabase implements IFlowerDatabase {
 
     public static int getFlowerId(Flower flower) {
         String sql = "SELECT id FROM flowers WHERE name = ? AND stem_length = ? AND freshness_level = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, flower.getName());
@@ -98,7 +98,7 @@ public class FlowerDatabase implements IFlowerDatabase {
     public List<Flower> getAllFlowers() {
         List<Flower> flowers = new ArrayList<>();
         String sql = "SELECT * FROM flowers";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 

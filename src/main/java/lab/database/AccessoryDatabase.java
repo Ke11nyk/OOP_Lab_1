@@ -9,14 +9,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 import lab.database.interfaces.IAccessoryDatabase;
 
 public class AccessoryDatabase implements IAccessoryDatabase {
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String URL = dotenv.get("DB_URL");
-    private static final String USER = dotenv.get("DB_USER");
-    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
+    private static DatabaseConnection dbConnection;
+
+    public AccessoryDatabase() {
+        this.dbConnection = DatabaseConnection.getInstance();
+    }
 
     public void insertAccessory(BouquetAccessory accessory) {
         String sql = "INSERT INTO accessories (name, cost) VALUES (?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, accessory.getName());
@@ -30,7 +31,7 @@ public class AccessoryDatabase implements IAccessoryDatabase {
 
     public void removeAccessory(String accessoryName) {
         String sql = "DELETE FROM accessories WHERE name = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, accessoryName);
@@ -47,7 +48,7 @@ public class AccessoryDatabase implements IAccessoryDatabase {
 
     public static int getAccessoryId(BouquetAccessory accessory) {
         String sql = "SELECT id FROM accessories WHERE name = ? AND cost = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, accessory.getName());
@@ -67,7 +68,7 @@ public class AccessoryDatabase implements IAccessoryDatabase {
 
     public BouquetAccessory getAccessoryByName(String name) {
         String sql = "SELECT * FROM accessories WHERE name = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, name);
@@ -87,7 +88,7 @@ public class AccessoryDatabase implements IAccessoryDatabase {
     public List<BouquetAccessory> getAllAccessories() {
         List<BouquetAccessory> accessories = new ArrayList<>();
         String sql = "SELECT * FROM accessories";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
