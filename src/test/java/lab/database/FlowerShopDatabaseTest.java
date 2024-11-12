@@ -1,121 +1,114 @@
 package lab.database;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
+import org.junit.jupiter.api.*;
 import lab.bouquets.Bouquet;
 import lab.bouquets.BouquetAccessory;
-import lab.flowers.Flower;
-import lab.flowers.Rose;
+import lab.flowers.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FlowerShopDatabaseTest {
 
-    @Mock
-    private FlowerDatabase mockFlowerDatabase;
+    private static FlowerShopDatabase db;
 
-    @Mock
-    private BouquetDatabase mockBouquetDatabase;
+    @BeforeAll
+    static void setUp() {
+        db = new FlowerShopDatabase();
+        db.createTables();
+    }
 
-    @Mock
-    private AccessoryDatabase mockAccessoryDatabase;
-
-    private FlowerShopDatabase flowerShopDatabase;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        flowerShopDatabase = new FlowerShopDatabase();
-        flowerShopDatabase.flowerDatabase = mockFlowerDatabase;
-        flowerShopDatabase.bouquetDatabase = mockBouquetDatabase;
-        flowerShopDatabase.accessoryDatabase = mockAccessoryDatabase;
+    @AfterAll
+    static void tearDown() {
+        db.closeConnection();
     }
 
     @Test
+    @Order(1)
     void testInsertFlower() {
-        Flower flower = new Rose(30, 5, true);
-        flowerShopDatabase.insertFlower(flower);
-        verify(mockFlowerDatabase).insertFlower(flower);
+        Flower rose = new Rose(30, 8, true);
+        db.insertFlower(rose);
+        List<Flower> flowers = db.getAllFlowers();
+        assertTrue(flowers.stream().anyMatch(f -> f instanceof Rose
+                && f.getStemLength() == 30
+                && f.getFreshnessLevel() == 8
+                && ((Rose) f).isThorny()));
     }
 
     @Test
-    void testRemoveFlower() {
-        int flowerId = 1;
-        flowerShopDatabase.removeFlower(flowerId);
-        verify(mockFlowerDatabase).removeFlower(flowerId);
-    }
-
-    @Test
+    @Order(2)
     void testGetAllFlowers() {
-        List<Flower> expectedFlowers = Arrays.asList(new Rose(30, 5, true), new Rose(25, 4, false));
-        when(mockFlowerDatabase.getAllFlowers()).thenReturn(expectedFlowers);
-        List<Flower> result = flowerShopDatabase.getAllFlowers();
-        assertEquals(expectedFlowers, result);
+        List<Flower> flowers = db.getAllFlowers();
+        assertFalse(flowers.isEmpty());
     }
 
     @Test
-    void testInsertBouquet() {
-        Bouquet bouquet = new Bouquet();
-        String bouquetName = "Test Bouquet";
-        when(mockBouquetDatabase.insertBouquet(bouquet, bouquetName)).thenReturn(true);
-        boolean result = flowerShopDatabase.insertBouquet(bouquet, bouquetName);
-        assertTrue(result);
+    @Order(3)
+    void testInsertAndGetAccessory() {
+        BouquetAccessory ribbon = new BouquetAccessory("Ribbon", 2.50);
+        db.insertAccessory(ribbon);
+        BouquetAccessory retrievedRibbon = db.getAccessoryByName("Ribbon");
+        assertNotNull(retrievedRibbon);
+        assertEquals(ribbon.getName(), retrievedRibbon.getName());
+        assertEquals(ribbon.getCost(), retrievedRibbon.getCost());
     }
 
     @Test
-    void testGetBouquetId() {
-        Bouquet bouquet = new Bouquet();
-        when(mockBouquetDatabase.getBouquetId(bouquet)).thenReturn(1);
-        int result = flowerShopDatabase.getBouquetId(bouquet);
-        assertEquals(1, result);
-    }
-
-    @Test
-    void testGetAllBouquets() {
-        List<Bouquet> expectedBouquets = Arrays.asList(new Bouquet(), new Bouquet());
-        when(mockBouquetDatabase.getAllBouquets()).thenReturn(expectedBouquets);
-        List<Bouquet> result = flowerShopDatabase.getAllBouquets();
-        assertEquals(expectedBouquets, result);
-    }
-
-    @Test
-    void testRemoveBouquet() {
-        String bouquetName = "Test Bouquet";
-        flowerShopDatabase.removeBouquet(bouquetName);
-        verify(mockBouquetDatabase).removeBouquet(bouquetName);
-    }
-
-    @Test
-    void testInsertAccessory() {
-        BouquetAccessory accessory = new BouquetAccessory("Ribbon", 2.5);
-        flowerShopDatabase.insertAccessory(accessory);
-        verify(mockAccessoryDatabase).insertAccessory(accessory);
-    }
-
-    @Test
-    void testGetAccessoryByName() {
-        String accessoryName = "Ribbon";
-        BouquetAccessory expectedAccessory = new BouquetAccessory(accessoryName, 2.5);
-        when(mockAccessoryDatabase.getAccessoryByName(accessoryName)).thenReturn(expectedAccessory);
-        BouquetAccessory result = flowerShopDatabase.getAccessoryByName(accessoryName);
-        assertEquals(expectedAccessory, result);
-    }
-
-    @Test
+    @Order(4)
     void testGetAllAccessories() {
-        List<BouquetAccessory> expectedAccessories = Arrays.asList(
-                new BouquetAccessory("Ribbon", 2.5),
-                new BouquetAccessory("Wrapping Paper", 1.5)
-        );
-        when(mockAccessoryDatabase.getAllAccessories()).thenReturn(expectedAccessories);
-        List<BouquetAccessory> result = flowerShopDatabase.getAllAccessories();
-        assertEquals(expectedAccessories, result);
+        List<BouquetAccessory> accessories = db.getAllAccessories();
+        assertFalse(accessories.isEmpty());
+    }
+
+    @Test
+    @Order(5)
+    void testInsertAndGetBouquet() {
+        Bouquet bouquet = new Bouquet();
+        bouquet.addFlower(new Rose(30, 8, true));
+        bouquet.addAccessory(new BouquetAccessory("Ribbon", 2.50));
+        boolean inserted = db.insertBouquet(bouquet, "TestBouquet");
+        assertTrue(inserted);
+
+        Bouquet retrievedBouquet = db.getBouquetByName("TestBouquet");
+        assertNotNull(retrievedBouquet);
+        assertEquals(1, retrievedBouquet.getFlowers().size());
+        assertEquals(1, retrievedBouquet.getAccessories().size());
+    }
+
+    @Test
+    @Order(6)
+    void testGetAllBouquets() {
+        List<Bouquet> bouquets = db.getAllBouquets();
+        assertFalse(bouquets.isEmpty());
+    }
+
+    @Test
+    @Order(7)
+    void testRemoveFlower() {
+        List<Flower> flowers = db.getAllFlowers();
+        if (!flowers.isEmpty()) {
+            int flowerId = db.getFlowerId(flowers.get(0));
+            db.removeFlower(flowerId);
+            List<Flower> updatedFlowers = db.getAllFlowers();
+            assertTrue(updatedFlowers.size() < flowers.size());
+        }
+    }
+
+    @Test
+    @Order(8)
+    void testRemoveAccessory() {
+        db.removeAccessory("Ribbon");
+        BouquetAccessory removedAccessory = db.getAccessoryByName("Ribbon");
+        assertNull(removedAccessory);
+    }
+
+    @Test
+    @Order(9)
+    void testRemoveBouquet() {
+        db.removeBouquet("TestBouquet");
+        Bouquet removedBouquet = db.getBouquetByName("TestBouquet");
+        assertNull(removedBouquet);
     }
 }

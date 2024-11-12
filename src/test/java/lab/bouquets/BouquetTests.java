@@ -111,12 +111,19 @@ class BouquetTests {
             bouquet.addFlower(rose2);
             bouquet.addFlower(lily);
 
-            BouquetSorter.sortByFreshness(bouquet);
+            bouquet.sortFlowers(false);
 
-            List<Flower> sortedFlowers = bouquet.getFlowers();
-            assertEquals(lily, sortedFlowers.get(0));
-            assertEquals(rose1, sortedFlowers.get(1));
-            assertEquals(rose2, sortedFlowers.get(2));
+            List<Flower> sortedFlowers1 = bouquet.getFlowers();
+            assertEquals(lily, sortedFlowers1.get(0));
+            assertEquals(rose1, sortedFlowers1.get(1));
+            assertEquals(rose2, sortedFlowers1.get(2));
+
+            bouquet.sortFlowers(true);
+
+            List<Flower> sortedFlowers2 = bouquet.getFlowers();
+            assertEquals(lily, sortedFlowers2.get(2));
+            assertEquals(rose1, sortedFlowers2.get(1));
+            assertEquals(rose2, sortedFlowers2.get(0));
         }
     }
 }
